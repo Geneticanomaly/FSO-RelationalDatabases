@@ -24,8 +24,14 @@ blogsRouter.post('/', middleware.userExtractor, async (req, res, next) => {
     return res.json(blog);
 });
 
-blogsRouter.delete('/:id', blogFinder, async (req, res) => {
-    if (req.blog) await req.blog.destroy();
+blogsRouter.delete('/:id', middleware.userExtractor, blogFinder, async (req, res) => {
+    if (!req.blog) return res.status(404).json({ error: 'no such blog found' });
+
+    if (req.blog.userId !== req.user.id) {
+        return res.status(403).json({ error: 'action not authorized' });
+    }
+
+    await req.blog.destroy();
     res.status(204).end();
 });
 
