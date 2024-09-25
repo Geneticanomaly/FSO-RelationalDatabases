@@ -12,11 +12,20 @@ const blogFinder = async (req, res, next) => {
 blogsRouter.get('/', async (req, res) => {
     const where = {};
 
+    // [Op.iLike]: `%${req.query.search}%` - Case-insensitive
     if (req.query.search) {
-        where.title = {
-            [Op.substring]: req.query.search,
-            // [Op.iLike]: `%${req.query.search}%` - Case-insensitive
-        };
+        where[Op.or] = [
+            {
+                title: {
+                    [Op.substring]: req.query.search,
+                },
+            },
+            {
+                author: {
+                    [Op.substring]: req.query.search,
+                },
+            },
+        ];
     }
 
     const blogs = await Blog.findAll({
