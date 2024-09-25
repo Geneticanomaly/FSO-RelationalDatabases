@@ -13,12 +13,8 @@ blogsRouter.get('/', async (req, res) => {
 });
 
 blogsRouter.post('/', async (req, res, next) => {
-    try {
-        const blog = await Blog.create(req.body);
-        return res.json(blog);
-    } catch (error) {
-        next(error);
-    }
+    const blog = await Blog.create(req.body);
+    return res.json(blog);
 });
 
 blogsRouter.delete('/:id', blogFinder, async (req, res) => {

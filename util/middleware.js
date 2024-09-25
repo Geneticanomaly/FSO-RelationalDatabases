@@ -7,6 +7,8 @@ const errorHandler = (error, req, res, next) => {
         return res.status(400).json({ error: error.message });
     } else if (error.name === 'SequelizeDatabaseError') {
         return res.status(400).json({ error: error.message });
+    } else if (error.name === 'SyntaxError') {
+        return res.status(400).json({ error: error.message });
     }
     next(error);
 };
