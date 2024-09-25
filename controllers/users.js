@@ -1,14 +1,18 @@
 const userRouter = require('express').Router();
-const { User } = require('../models');
+const { User, Blog } = require('../models');
 require('express-async-errors');
 
 const userFinder = async (req, res, next) => {
-    req.user = await User.findOne({ username: req.params.username });
+    req.user = await User.findOne({ where: { username: req.params.username } });
     next();
 };
 
 userRouter.get('/', async (req, res) => {
-    const users = await User.findAll();
+    const users = await User.findAll({
+        include: {
+            model: Blog,
+        },
+    });
     return res.json(users);
 });
 

@@ -1,6 +1,7 @@
 const blogsRouter = require('express').Router();
-const { Blog } = require('../models');
+const { Blog, User } = require('../models');
 require('express-async-errors');
+const middleware = require('../util/middleware');
 
 const blogFinder = async (req, res, next) => {
     req.blog = await Blog.findByPk(req.params.id);
@@ -8,12 +9,18 @@ const blogFinder = async (req, res, next) => {
 };
 
 blogsRouter.get('/', async (req, res) => {
-    const blogs = await Blog.findAll();
-    res.json(blogs);
+    const blogs = await Blog.findAll({
+        attributes: { exclude: ['userId'] },
+        include: {
+            model: User,
+            attributes: ['name'],
+        },
+    });
+    return res.json(blogs);
 });
 
-blogsRouter.post('/', async (req, res, next) => {
-    const blog = await Blog.create(req.body);
+blogsRouter.post('/', middleware.userExtractor, async (req, res, next) => {
+    const blog = await Blog.create({ ...req.body, userId: req.user.id });
     return res.json(blog);
 });
 
