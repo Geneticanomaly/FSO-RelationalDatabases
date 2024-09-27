@@ -9,9 +9,18 @@ const userFinder = async (req, res, next) => {
 
 userRouter.get('/', async (req, res) => {
     const users = await User.findAll({
-        include: {
-            model: Blog,
-        },
+        include: [
+            {
+                model: Blog,
+            },
+            {
+                model: Blog,
+                as: 'readings',
+                through: {
+                    attributes: [],
+                },
+            },
+        ],
     });
     return res.json(users);
 });
