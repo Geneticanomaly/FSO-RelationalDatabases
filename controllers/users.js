@@ -1,5 +1,5 @@
 const userRouter = require('express').Router();
-const { User, Blog } = require('../models');
+const { User, Blog, ReadingList } = require('../models');
 require('express-async-errors');
 
 const userFinder = async (req, res, next) => {
@@ -31,6 +31,10 @@ userRouter.get('/:id', async (req, res) => {
         include: {
             model: Blog,
             as: 'readings',
+            through: {
+                as: 'readinglists',
+                attributes: ['id', 'read'],
+            },
         },
     });
     return res.json(user);
