@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { SECRET } = require('./config');
-const { User } = require('../models');
+const { User, ActiveSession } = require('../models');
 
 const unknownEndpoint = (req, res) => {
     res.status(404).send({ error: 'unknown endpoint' });
@@ -34,6 +34,17 @@ const tokenExtractor = (req, res, next) => {
 const userExtractor = async (req, res, next) => {
     const decodedToken = jwt.verify(req.token, SECRET);
     if (!decodedToken) return res.status(401).json({ error: 'token invalid' });
+
+    const activeSession = await ActiveSession.findOne({
+        where: {
+            userId: decodedToken.id,
+            token: req.token,
+        },
+    });
+
+    if (!activeSession) {
+        return res.status(401).json({ error: 'token not active or session has expired' });
+    }
 
     const user = await User.findOne({
         where: {
