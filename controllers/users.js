@@ -1,6 +1,7 @@
 const userRouter = require('express').Router();
 const { User, Blog } = require('../models');
 require('express-async-errors');
+const { Op } = require('sequelize');
 
 const userFinder = async (req, res, next) => {
     req.user = await User.findOne({ where: { username: req.params.username } });
@@ -26,6 +27,16 @@ userRouter.get('/', async (req, res) => {
 });
 
 userRouter.get('/:id', async (req, res) => {
+    let read = {
+        [Op.in]: [true, false],
+    };
+
+    if (req.query.read) {
+        if (req.query.read === 'true') read = true;
+        else if (req.query.read === 'false') read = false;
+        else read = '';
+    }
+
     const user = await User.findByPk(req.params.id, {
         attributes: { exclude: ['id', 'createdAt', 'updatedAt'] },
         include: {
@@ -34,6 +45,9 @@ userRouter.get('/:id', async (req, res) => {
             through: {
                 as: 'readinglists',
                 attributes: ['id', 'read'],
+                where: {
+                    read,
+                },
             },
         },
     });
