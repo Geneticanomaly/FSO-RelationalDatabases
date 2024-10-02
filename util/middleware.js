@@ -53,6 +53,8 @@ const userExtractor = async (req, res, next) => {
     });
     if (!user) return res.status(401).json({ error: 'user not found' });
 
+    if (user.disabled) return res.status(403).json({ error: 'account disabled' });
+
     req.user = user;
     next();
 };
